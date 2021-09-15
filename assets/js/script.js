@@ -80,6 +80,8 @@ var auditTask = function(taskEl) {
   else if (Math.abs(moment().diff(time, "days")) <=2) {
     $(taskEl).addClass("list-group-item-warning");
   }
+
+  console.log(taskEl);
 };
 
 $(".list-group").on("blur", "textarea", function() {
@@ -179,18 +181,18 @@ $(".card .list-group").sortable({
   scroll: false,
   tolerance: "pointer",
   helper: "clone",
-  // activate: function(event) {
-  //   console.log("activate", this);
-  // },
-  // deactivate: function(event) {
-  //   console.log("deactivate", this);
-  // },
-  // over: function(event) {
-  //   console.log("over", event.target);
-  // },
-  // out: function(event) {
-  //   console.log("out", event.target);
-  // },
+  activate: function(event) {
+    $(this).addClass("dropover")
+  },
+  deactivate: function(event) {
+    $(this).removeClass("dropover")
+  },
+  over: function(event) {
+    $(event.target).addClass("dropover-active")
+  },
+  out: function(event) {
+    $(event.target).removeClass("dropover-active")
+  },
   update: function(event) {
     // array to store the task data in
     var tempArr = [];
@@ -231,15 +233,21 @@ $(".card .list-group").sortable({
 $("#trash").droppable({
   accept: ".card .list-group-item",
   tolerance: "touch",
+  activate: function(event) {
+    $(".bottom-trash").addClass("bottom-trash-drag");
+  },
+  deactivate: function(event) {
+    $(".bottom-trash").removeClass("bottom-trash-drag");
+  },
   drop: function(event, ui) {
-    console.log("drop");
+    $(".bottom-trash").removeClass("bottom-trash-active")
     ui.draggable.remove();
   },
   over: function(event, ui) {
-    console.log("over");
+    $(".bottom-trash").addClass("bottom-trash-active")
   },
   out: function(event, ui) {
-    console.log("out");
+    $(".bottom-trash").removeClass("bottom-trash-active")
   }
 });
 
@@ -261,7 +269,7 @@ $("#modalDueDate").datepicker({
 });
 
 // save button in modal was clicked
-$("#task-form-modal .btn-primary").click(function() {
+$("#task-form-modal .btn-save").click(function() {
   // get form values
   var taskText = $("#modalTaskDescription").val();
   var taskDate = $("#modalDueDate").val();
@@ -294,4 +302,8 @@ $("#remove-tasks").on("click", function() {
 // load tasks for the first time
 loadTasks();
 
-
+setInterval(function() {
+  $(".card .list-group-item").each(function(index, el) {
+    auditTask(el);
+  });
+}, 1800000);
